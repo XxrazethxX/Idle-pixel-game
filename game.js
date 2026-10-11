@@ -47,11 +47,33 @@ function renderFinale(){
   $('square').disabled=!residentKeys.every(k=>state[k])||!stage||!canAfford(stage.cost);
   $('square').innerHTML=stage?`${stage.label} <span>${neighbors===6?costLabel(stage.cost):'First: all 6 neighbors'}</span>`:'Square restored <span>The Mosslight is ready</span>';
   $('mosslight').disabled=state.completed||!finaleReady()||!canAfford(finaleCost);
-  $('mosslight').innerHTML=state.completed?'Festival complete <span>Welcome home ♡</span>':`Host Mosslight Festival <span>${finaleReady()?costLabel(finaleCost):'Finish the milestones below'}</span>`;
+  $('mosslight').innerHTML=state.completed?'Festival complete <span>Welcome home ♡</span>':`Host Mosslight Festival <span>${finaleReady()?costLabel(finaleCost):'Complete the milestones'}</span>`;
   $('memories').disabled=!state.completed;
   $('memories').innerHTML=`Festival memories <span>${state.completed?'Read the ending again':'First: Mosslight Festival'}</span>`;
   $('milestones').innerHTML=[['Neighbors',neighbors,6],['Flowers',state.garden,5],['Lanterns',state.lanterns,4],['Square',state.square,3],['Upgrades',residentKeys.filter(k=>state.upgrades[k]>=1).length,6]].map(([name,value,total])=>`<span class="${value===total?'done':''}">${value===total?'✓':'○'} ${name} ${value}/${total}</span>`).join('');
   $('goal').textContent=state.completed?'Mosslight Festival complete':neighbors<6?'Welcome all 6 neighbors':!finaleReady()?'Prepare the village for the festival':'Ready for the Mosslight Festival';
+}
+function nextVillageStep(){
+  if(state.completed)return 'Your village is home. Keep tending it at your own pace.';
+  if(!state.garden)return `Plant flowers · ${6} wood`;
+  if(!state.bakery)return 'Welcome Juniper · 24 wood · 12 seeds';
+  if(!state.pond)return 'Welcome Fern · 35 wood · 20 seeds · 8 ♡';
+  if(!state.library)return 'Welcome Orla · 60 wood · 35 seeds · 20 ♡';
+  const project=projects.find(p=>!state[p.id]);
+  if(project)return `${project.label} · ${costLabel(project.cost)}`;
+  if(state.garden<5)return `Finish the flowers · ${6+state.garden*4} wood`;
+  if(state.lanterns<4)return 'Light the trail · 10 wood · 5 ♡';
+  const building=residentKeys.find(id=>state.upgrades[id]===0);
+  if(building)return `Improve ${buildings[building].name.toLowerCase()} · ${costLabel(upgradeCost(building))}`;
+  if(state.square<3)return `${squareStages[state.square].label} · ${costLabel(squareStages[state.square].cost)}`;
+  return `Host the Mosslight Festival · ${costLabel(finaleCost)}`;
+}
+function finishControls(){
+  $('next-step').textContent=nextVillageStep();
+  for(const id of ['gather','plant','restore','pond','library','lantern','orchard','workshop','teahouse','tools','trade','festival','square','mosslight','memories',...residentKeys.map(k=>'upgrade-'+k)]){
+    const button=$(id);button.setAttribute('data-ready',String(!button.disabled));
+    button.setAttribute('aria-label',button.innerHTML.replace(/<[^>]+>/g,' ').replace(/♡/g,' warmth ').replace(/→/g,' for ').replace(/\s+/g,' ').trim());
+  }
 }
 function render(){
   $('motion').textContent=calmMotion?'Motion off':'Motion on';$('motion').setAttribute('aria-pressed',String(!calmMotion));
@@ -86,6 +108,7 @@ function render(){
   for(const id of residentKeys){const level=state.upgrades[id],b=buildings[id];$(`upgrade-${id}`).disabled=!state[id]||level>=3||!canAfford(upgradeCost(id));$(`upgrade-${id}`).innerHTML=`${b.name} ${level}/3 <span>${!state[id]?'First: '+b.name.toLowerCase():level===3?incomeLabel(buildingRates(id)):'Next: '+incomeLabel(buildingRates(id,level+1))}</span>${state[id]&&level<3?`<span>${costLabel(upgradeCost(id))}</span>`:''}`;$(`upgrade-${id}`).title=state[id]&&level<3?`${b.details[level]} · Next: ${incomeLabel(buildingRates(id,level+1))}`:'';}
   renderFinale();
   $('festival').innerHTML=`Host tea picnic <span>${!state.teahouse?'First: tea garden':wait?`Ready in ${Math.floor(wait/60)}:${String(wait%60).padStart(2,'0')}`:'20 wood · 40 seeds → 40 ♡'}</span>`;
+  finishControls();
 
 }
 
@@ -110,9 +133,13 @@ $('mosslight').onclick=()=>{accrue(Date.now());if(state.completed||!finaleReady(
 function showEnding(){if(!$('ending').open)$('ending').showModal();}
 $('memories').onclick=()=>{if(state.completed)showEnding();};
 $('keep-playing').onclick=()=>$('ending').close();
-const actionPages=[['village-tab','village-actions'],['expand-tab','expansion-actions'],['square-tab','square-actions'],['upgrade-tab','upgrade-actions']];
+const actionPages=[['village-tab','village-actions'],['expand-tab','expansion-actions'],['upgrade-tab','upgrade-actions'],['square-tab','square-actions']];
 for(const [id,panel] of actionPages)$(id).onclick=()=>{
   for(const [button,page] of actionPages){$(page).hidden=page!==panel;$(button).setAttribute('aria-pressed',String(button===id));}
+};
+for(const [index,[id]] of actionPages.entries())$(id).onkeydown=event=>{
+  let target;if(event.key==='ArrowRight')target=(index+1)%actionPages.length;else if(event.key==='ArrowLeft')target=(index+actionPages.length-1)%actionPages.length;else if(event.key==='Home')target=0;else if(event.key==='End')target=actionPages.length-1;else return;
+  event.preventDefault();const button=$(actionPages[target][0]);button.focus();button.onclick();
 };
 $('motion').onclick=()=>{calmMotion=!calmMotion;try{localStorage.setItem('mosslight-preferences-v1',JSON.stringify({calmMotion}));}catch{}render();};
 let pendingImport=null,importGeneration=0;
@@ -298,11 +325,17 @@ function draw(t){
   if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;ctx.imageSmoothingEnabled=false;}
   pixelScale=1;pixelX=0;pixelY=0;rect(0,0,w,h,'#52694a');
   // Recompose for portrait screens instead of cropping the village away.
-  const top=window.innerWidth<=700?42:26,bottom=window.innerWidth<=700?84:71;
+  const headerHeight=$('game-header').getBoundingClientRect().bottom;
+  const dockTop=$('action-dock').getBoundingClientRect().top;
+  const top=Math.ceil((headerHeight+12)/3),bottom=Math.ceil((window.innerHeight-dockTop+12)/3);
+  $('toast').style.top=`${headerHeight+10}px`;
   const portrait=window.innerWidth<650&&window.innerHeight>window.innerWidth;
+  const landscape=window.innerWidth>=650&&window.innerHeight<=500;
   const sceneW=portrait?200:480,sceneH=portrait?420:250;
-  const scale=Math.min(w/sceneW,Math.max(1,h-top-bottom)/sceneH);
-  const ox=(w-sceneW*scale)/2,oy=top+(h-top-bottom-sceneH*scale)/2;
+  const sceneLeft=landscape?Math.ceil(($('action-dock').getBoundingClientRect().right+12)/3):0;
+  const availableHeight=Math.max(1,h-top-(landscape?4:bottom));
+  const scale=Math.min((w-sceneLeft)/sceneW,availableHeight/sceneH);
+  const ox=sceneLeft+(w-sceneLeft-sceneW*scale)/2,oy=top+(availableHeight-sceneH*scale)/2;
   for(let i=0;i<Math.ceil(w/23)+1;i++)tree(i*23,25+(i%3)*4,.9);
   for(let i=0;i<100;i++)rect((i*73)%w,35+(i*43)%Math.max(1,h-35),2,2,i%2?'#627c51':'#58734b');
   pixelScale=scale;pixelX=Math.floor(ox);pixelY=Math.floor(oy);if(portrait)drawPortrait(t);else drawVillage(t);

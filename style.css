@@ -60,3 +60,10 @@ dialog .ending-note{font-size:12px}dialog button{margin-top:12px;width:100%;back
 @media(max-width:700px){.world-controls{gap:4px}.world-controls button{padding:8px 6px;font-size:9px}h1{font-size:16px}dialog{padding:22px}}
 @media(max-width:360px){h1{font-size:14px}.world-controls button{padding:8px 4px}.world-controls{gap:3px}}
 @media(max-height:450px){dialog{padding:12px}dialog h2{font-size:24px;margin:4px 0}dialog p{font-size:11px;line-height:1.5;margin:4px 0}dialog button{padding:8px;margin-top:4px;font-size:12px}.save-buttons button{padding:8px}#save-summary,#save-status,#transfer-status{font-size:11px}}
+.next-step{margin:0 0 8px;background:#18271ff2;border:1px solid #617052;border-radius:6px;padding:8px 12px;text-align:center;font-size:11px;color:#e5d5ae;line-height:1.5}
+.actions button[data-ready="true"]{border-color:#a6b47d;background:#344c32f5}
+button:active:not(:disabled){transform:translateY(1px)}
+.world-controls button,.tabs button{min-height:44px}
+@media(max-width:700px){.next-step{font-size:10px;padding:7px 8px}.world-controls button{min-height:44px}.tabs button{min-height:44px;padding:8px 11px}}
+@media(max-height:500px) and (min-width:650px){header{top:8px;left:12px;right:12px;gap:10px}.title{gap:2px}h1{font-size:16px}.resources{padding:8px 12px;gap:14px}.resources strong{font-size:16px}.world-controls button{padding:8px 6px;font-size:10px}.action-dock{left:12px;right:auto;bottom:10px;width:min(420px,48vw);transform:none}.next-step{font-size:10px;padding:5px 8px}.tabs button{padding:6px 9px;font-size:10px}.actions button{font-size:11px;min-height:50px;padding:7px 4px}.actions button span{font-size:9px}#upgrade-actions button{min-height:75px}.festival-progress{padding:7px;font-size:11px}#milestones{font-size:9px;gap:4px 7px;margin-top:5px}}
+@media(max-height:500px) and (min-width:650px){header{flex-wrap:nowrap}.resources{order:0;width:auto;justify-content:center;margin:auto}.world-controls{margin-left:0}}

@@ -41,3 +41,9 @@ Open **Saves** to export a JSON backup, import one, or reset your village. Impor
 Backups include supplies, buildings, upgrades, picnic cooldown, square progress, festival completion, and the last save time. Restoring includes up to eight hours of offline income, using the saved production rates. Older raw save files are supported; malformed, oversized, or unsupported-version backups are rejected. Export files are versioned and contain no account information.
 
 If local storage is unreadable, the original data is kept instead of automatically overwritten. If writing fails, imports and resets keep the current game intact; export a backup before closing the tab. A clock rollback pauses earnings until the clock catches up rather than counting the same time twice.
+
+## Controls
+
+Village, Woodland, Upgrades, and Festival organize the actions. A compact goal hint points to the next step; available actions have a brighter border. Use Tab to focus controls, Enter or Space to activate them, and Left/Right/Home/End to switch action pages when a page button is focused. Save dialogs keep confirmation actions separate from gameplay.
+
+The canvas fits around the measured header and action dock. Short landscape screens show actions beside the village, while portrait screens use the vertical village composition. Control targets are at least 44 pixels high.
