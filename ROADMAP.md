@@ -11,4 +11,4 @@ The endpoint is a complete, relaxing game with a satisfying finish. Keep the sco
 - [x] Versioned save export/import, confirmation before replacement/reset, legacy saves, offline income, clock rollback, corrupt-data protection, and storage-failure recovery checks.
 - [ ] Final fresh-save playthrough, display and progression review, and deployment as a shareable website.
 
-Next milestone: release validation, a real-time fresh-save playthrough, and website deployment. Passing automated checks does not replace the final real-time playthrough.
+Release candidate prepared. Remaining gates: real-time pacing review and confirmed public deployment. Track evidence in RELEASE_CHECKLIST.md and follow DEPLOYMENT.md. Passing automated checks does not replace the final real-time playthrough.

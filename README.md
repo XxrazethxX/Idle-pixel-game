@@ -47,3 +47,7 @@ If local storage is unreadable, the original data is kept instead of automatical
 Village, Woodland, Upgrades, and Festival organize the actions. A compact goal hint points to the next step; available actions have a brighter border. Use Tab to focus controls, Enter or Space to activate them, and Left/Right/Home/End to switch action pages when a page button is focused. Save dialogs keep confirmation actions separate from gameplay.
 
 The canvas fits around the measured header and action dock. Short landscape screens show actions beside the village, while portrait screens use the vertical village composition. Control targets are at least 44 pixels high.
+
+## Publishing
+
+The GitHub Pages workflow validates and publishes the static distribution. See [DEPLOYMENT.md](DEPLOYMENT.md) for the one-time Pages setting and [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) for release gates. The website is not confirmed live yet.
