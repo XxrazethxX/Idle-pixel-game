@@ -7,7 +7,7 @@
     <canvas id="village" width="480" height="250" aria-label="A pixel woodland village with your cabin, garden, grove and bakery"></canvas>
   </section>
   <header>
-    <h1>Mosslight Village</h1>
+    <div class="title"><h1>Mosslight Village</h1><span id="neighbors">0 / 3 neighbors</span></div>
     <section class="resources" aria-label="Your supplies">
       <div>🪵 <strong id="wood">0</strong><span>wood</span></div>
       <div>🌱 <strong id="seeds">0</strong><span>seeds</span></div>
@@ -20,6 +20,9 @@
     <button id="gather">Gather wood <span>+3 wood</span></button>
     <button id="plant">Plant wildflowers <span>6 wood</span></button>
     <button id="restore">Restore bakery <span>24 wood · 12 seeds</span></button>
+    <button id="pond">Build pond <span>First: bakery</span></button>
+    <button id="library">Open bookshop <span>First: pond</span></button>
+    <button id="lantern">Add lantern <span>First: bakery</span></button>
   </section>
 </main>
 <script src="game.js"></script>

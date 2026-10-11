@@ -8,4 +8,10 @@ From this directory, run `python3 -m http.server 8000`. Open the server in a bro
 
 Gather branches, plant up to five flower patches, and restore Juniper’s bakery. Gardens produce seeds; the bakery produces warmth and wood. Progress saves to browser local storage, with up to eight hours of offline earnings. Optional sound starts only when enabled.
 
-The first version has no win screen: after welcoming Juniper, you can grow your garden and collect supplies for future village additions.
+After welcoming Juniper, build Fern’s pond for more seeds, then open Orla’s bookshop for more warmth. Add four lanterns to illuminate the path. A picnic spot appears once you have 30 warmth. Existing saves carry forward.
+
+The canvas fills the screen and uses a separate portrait composition so buildings remain visible on phones.
+
+## Checks
+
+Run `node --check game.js` and `node --test tests/progression.test.cjs`.
