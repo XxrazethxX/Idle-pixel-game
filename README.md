@@ -20,4 +20,10 @@ Run `node --check game.js` and `node --test tests/progression.test.cjs`.
 
 ## The Mosslight Festival
 
-The Festival action page tracks the final goal. Welcome all six neighbors, finish five flower patches and four lanterns, then restore the square in three stages: stones, flowers, and the Mosslight lantern. Hosting the festival costs 100 wood, 150 seeds, and 500 warmth. Everyone gathers in the decorated square, floating lanterns rise, and an ending celebrates your village. Continue playing afterward, or reread the ending through Festival memories. Completion and square progress are saved automatically.
+The Festival action page tracks the final goal. Welcome all six neighbors, finish five flower patches and four lanterns, then restore the square in three stages: stones, flowers, and the Mosslight lantern. Hosting the festival costs 100 wood, 150 seeds, and 3,800 warmth. Upgrade every building at least once before hosting. Everyone gathers in the decorated square, floating lanterns rise, and an ending celebrates your village. Continue playing afterward, or reread the ending through Festival memories. Completion and square progress are saved automatically.
+
+## Building upgrades and pacing
+
+The Upgrades page gives every resident building three improvements. Each level adds 50% of the building’s base production (up to 2.5× at level three), with escalating costs and new pixel decorations. Buttons show the next income and exact cost; the supply bar shows total income per minute. Offline income uses the same upgraded rates. Older saves start with level-zero buildings; festivals already completed remain completed.
+
+Run `node scripts/measure-pacing.cjs` to measure three reproducible progression models. Current results range from 146 to 175 simulated minutes. These models use real purchase handlers, earned resources, and accelerated elapsed time; they do not establish real player completion time. See [PACING.md](PACING.md) for assumptions.

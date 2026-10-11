@@ -43,3 +43,11 @@ dialog h2{font:normal 30px Georgia,serif;margin:16px 0}
 dialog p{font-size:14px;line-height:1.8;color:var(--muted)}
 dialog .ending-note{font-size:12px}dialog button{margin-top:12px;width:100%;background:#60734b}
 @media(max-width:700px){.festival-progress{font-size:12px;padding:10px}#milestones{font-size:10px;gap:6px 10px}.finale-actions button{min-height:65px}}
+
+.resources small{display:block;font-size:9px;color:#d6c7a4;margin-top:3px;font-variant-numeric:tabular-nums}
+#upgrade-actions button{min-height:82px}#upgrade-actions button span{line-height:1.3}
+.tabs{gap:5px}.tabs button{padding:8px 17px}
+@media(max-width:700px){.tabs button{padding:7px 11px}.resources{gap:14px}.resources strong{font-size:16px}#upgrade-actions button{min-height:83px}}
+
+@media(max-width:700px){.resources{gap:8px;padding:10px 8px}.resources div{gap:4px;min-width:0}.resources strong{font-size:15px}.resources span{font-size:10px}.resources small{font-size:8px}}
+@media(max-width:360px){.resources{gap:5px}.resources div{font-size:13px;gap:3px}.resources strong{font-size:13px}.resources span{font-size:9px}.resources small{font-size:7px}}

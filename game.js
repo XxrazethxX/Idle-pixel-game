@@ -1,28 +1,40 @@
 'use strict';
 const KEY='mosslight-village-v1';
-const fresh=()=>({wood:0,seeds:0,warmth:0,garden:0,bakery:false,pond:false,library:false,lanterns:0,orchard:false,workshop:false,teahouse:false,tools:0,festivalAt:0,square:0,completed:false,last:Date.now()});
+const fresh=()=>({wood:0,seeds:0,warmth:0,garden:0,bakery:false,pond:false,library:false,lanterns:0,orchard:false,workshop:false,teahouse:false,tools:0,festivalAt:0,square:0,completed:false,upgrades:{bakery:0,pond:0,library:0,orchard:0,workshop:0,teahouse:0},last:Date.now()});
 let state=fresh();
-try{const saved=JSON.parse(localStorage.getItem(KEY));if(saved&&typeof saved==='object'){for(const k of ['wood','seeds','warmth','garden','last'])if(Number.isFinite(saved[k])&&saved[k]>=0)state[k]=saved[k];state.garden=Math.min(5,Math.floor(state.garden));for(const k of ['bakery','pond','library','orchard','workshop','teahouse'])state[k]=saved[k]===true;state.lanterns=Math.min(4,Math.max(0,Math.floor(Number(saved.lanterns)||0)));state.tools=Math.min(5,Math.max(0,Math.floor(Number(saved.tools)||0)));state.festivalAt=Number.isFinite(saved.festivalAt)&&saved.festivalAt>=0?saved.festivalAt:0;state.square=Math.min(3,Math.max(0,Math.floor(Number(saved.square)||0)));state.completed=saved.completed===true&&state.square===3;}}catch{}
+try{const saved=JSON.parse(localStorage.getItem(KEY));if(saved&&typeof saved==='object'){for(const k of ['wood','seeds','warmth','garden','last'])if(Number.isFinite(saved[k])&&saved[k]>=0)state[k]=saved[k];state.garden=Math.min(5,Math.floor(state.garden));for(const k of ['bakery','pond','library','orchard','workshop','teahouse'])state[k]=saved[k]===true;state.lanterns=Math.min(4,Math.max(0,Math.floor(Number(saved.lanterns)||0)));state.tools=Math.min(5,Math.max(0,Math.floor(Number(saved.tools)||0)));state.festivalAt=Number.isFinite(saved.festivalAt)&&saved.festivalAt>=0?saved.festivalAt:0;state.square=Math.min(3,Math.max(0,Math.floor(Number(saved.square)||0)));state.completed=saved.completed===true&&state.square===3;for(const id of Object.keys(state.upgrades)){const level=Number(saved.upgrades?.[id]);if(state[id]&&Number.isFinite(level))state.upgrades[id]=Math.min(3,Math.max(0,Math.floor(level)));}}}catch{}
 const $=id=>document.getElementById(id);
-function accrue(now){const seconds=Math.max(0,Math.min((now-state.last)/1000,28800));state.seeds+=seconds*(state.garden/5+(state.pond?.3:0)+(state.orchard?.5:0));if(state.bakery){state.warmth+=seconds/10;state.wood+=seconds/8;}state.warmth+=seconds*((state.library?.2:0)+state.lanterns*.025);state.wood+=seconds*(state.workshop?.4:0);state.warmth+=seconds*(state.teahouse?.4:0);state.last=now;}
+const buildings={
+  bakery:{name:'Bakery',rates:{wood:7.5,warmth:6},costScale:1,details:['Bread stall','Striped awning','Sunlit kitchen']},
+  pond:{name:'Pond',rates:{seeds:18},costScale:1.2,details:['Lily beds','Waterside bench','Flowered banks']},
+  library:{name:'Bookshop',rates:{warmth:12},costScale:1.4,details:['Reading bench','Book shelves','Story corner']},
+  orchard:{name:'Orchard',rates:{seeds:30},costScale:1.6,details:['Fruit baskets','Harvest baskets','Blossom grove']},
+  workshop:{name:'Workshop',rates:{wood:24},costScale:1.8,details:['Lumber rack','Tool bench','Covered workyard']},
+  teahouse:{name:'Tea garden',rates:{warmth:24},costScale:2,details:['Flower pots','Garden planters','Lantern canopy']}
+};
+function buildingRates(id,level=state.upgrades[id]){return Object.fromEntries(Object.entries(buildings[id].rates).map(([resource,rate])=>[resource,rate*(1+level*.5)]));}
+function incomePerMinute(){const rates={wood:0,seeds:state.garden*12,warmth:state.lanterns*1.5};for(const id of Object.keys(buildings))if(state[id])for(const [resource,rate] of Object.entries(buildingRates(id)))rates[resource]+=rate;return rates;}
+function incomeLabel(rates){return Object.entries(rates).map(([resource,rate])=>`${Number(rate.toFixed(2))} ${resource==='warmth'?'♡':resource}/min`).join(' · ');}
+function upgradeCost(id){const level=state.upgrades[id],scale=buildings[id].costScale;return [Math.round([60,180,450][level]*scale),Math.round([15,45,100][level]*scale),Math.round([25,90,240][level]*scale)];}
+function accrue(now){const seconds=Math.max(0,Math.min((now-state.last)/1000,28800));const rates=incomePerMinute();for(const resource of ['wood','seeds','warmth'])state[resource]+=seconds*rates[resource]/60;state.last=now;}
 const away=Date.now()-state.last;accrue(Date.now());
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch{toast('Saving unavailable. Keep this tab open to retain progress.');}}
 const projects=[
-  {id:'orchard',label:'Plant orchard',resident:'Clover’s orchard',cost:[90,60,35],requires:'library',income:'+30 seeds / min'},
-  {id:'workshop',label:'Build workshop',resident:'Alder’s workshop',cost:[140,80,60],requires:'orchard',income:'+24 wood / min'},
-  {id:'teahouse',label:'Open tea garden',resident:'Hazel’s tea garden',cost:[200,120,100],requires:'workshop',income:'+24 warmth / min'}
+  {id:'orchard',label:'Plant orchard',resident:'Clover’s orchard',cost:[120,100,120],requires:'library',income:'+30 seeds / min'},
+  {id:'workshop',label:'Build workshop',resident:'Alder’s workshop',cost:[220,160,220],requires:'orchard',income:'+24 wood / min'},
+  {id:'teahouse',label:'Open tea garden',resident:'Hazel’s tea garden',cost:[350,250,350],requires:'workshop',income:'+24 warmth / min'}
 ];
 function canAfford(cost){return state.wood>=cost[0]&&state.seeds>=cost[1]&&state.warmth>=cost[2];}
 function spend(cost){state.wood-=cost[0];state.seeds-=cost[1];state.warmth-=cost[2];}
 function costLabel(cost){return [cost[0]&&`${cost[0]} wood`,cost[1]&&`${cost[1]} seeds`,cost[2]&&`${cost[2]} ♡`].filter(Boolean).join(' · ');}
 const residentKeys=['bakery','pond','library','orchard','workshop','teahouse'];
 const squareStages=[
-  {label:'Lay square stones',cost:[250,80,100],message:'Alder laid the stones. There’s room for everyone.'},
-  {label:'Plant square flowers',cost:[80,200,150],message:'Clover and Fern filled the square with flowers.'},
-  {label:'Raise the Mosslight',cost:[150,100,350],message:'The village lantern is ready for its first festival.'}
+  {label:'Lay square stones',cost:[500,300,900],message:'Alder laid the stones. There’s room for everyone.'},
+  {label:'Plant square flowers',cost:[300,600,1500],message:'Clover and Fern filled the square with flowers.'},
+  {label:'Raise the Mosslight',cost:[600,400,2200],message:'The village lantern is ready for its first festival.'}
 ];
-const finaleCost=[100,150,500];
-function finaleReady(){return residentKeys.every(k=>state[k])&&state.garden===5&&state.lanterns===4&&state.square===3;}
+const finaleCost=[400,600,3800];
+function finaleReady(){return residentKeys.every(k=>state[k])&&state.garden===5&&state.lanterns===4&&state.square===3&&residentKeys.every(k=>state.upgrades[k]>=1);}
 function renderFinale(){
   const neighbors=residentKeys.filter(k=>state[k]).length;
   const stage=squareStages[state.square];
@@ -32,19 +44,19 @@ function renderFinale(){
   $('mosslight').innerHTML=state.completed?'Festival complete <span>Welcome home ♡</span>':`Host Mosslight Festival <span>${finaleReady()?costLabel(finaleCost):'Finish the milestones below'}</span>`;
   $('memories').disabled=!state.completed;
   $('memories').innerHTML=`Festival memories <span>${state.completed?'Read the ending again':'First: Mosslight Festival'}</span>`;
-  $('milestones').innerHTML=[['Neighbors',neighbors,6],['Flowers',state.garden,5],['Lanterns',state.lanterns,4],['Square',state.square,3]].map(([name,value,total])=>`<span class="${value===total?'done':''}">${value===total?'✓':'○'} ${name} ${value}/${total}</span>`).join('');
+  $('milestones').innerHTML=[['Neighbors',neighbors,6],['Flowers',state.garden,5],['Lanterns',state.lanterns,4],['Square',state.square,3],['Upgrades',residentKeys.filter(k=>state.upgrades[k]>=1).length,6]].map(([name,value,total])=>`<span class="${value===total?'done':''}">${value===total?'✓':'○'} ${name} ${value}/${total}</span>`).join('');
   $('goal').textContent=state.completed?'Mosslight Festival complete':neighbors<6?'Welcome all 6 neighbors':!finaleReady()?'Prepare the village for the festival':'Ready for the Mosslight Festival';
 }
 function render(){
-  for(const k of ['wood','seeds','warmth'])$(k).textContent=Math.floor(state[k]);
+  for(const k of ['wood','seeds','warmth']){const amount=Math.floor(state[k]);$(k).textContent=amount>=1000000?`${Number((amount/1000000).toFixed(1))}m`:amount>=10000?`${Number((amount/1000).toFixed(1))}k`:amount;$(k).title=`${amount} ${k}`;}
   const cost=6+state.garden*4;
   $('plant').disabled=state.garden>=5||state.wood<cost;
   $('plant').innerHTML=state.garden>=5?'Flowers flourishing <span>60 seeds / min</span>':`${state.garden?'Grow garden':'Plant flowers'} <span>${cost} wood · +12 seeds / min</span>`;
   $('restore').disabled=state.bakery||state.wood<24||state.seeds<12;
-  $('restore').innerHTML=state.bakery?'Juniper’s bakery <span>+6 warmth / min</span>':'Restore bakery <span>24 wood · 12 seeds</span>';
+  $('restore').innerHTML=state.bakery?`Juniper’s bakery <span>${incomeLabel(buildingRates('bakery'))}</span>`:'Restore bakery <span>24 wood · 12 seeds</span>';
   for(const [id,label,cost,requirement,income] of [['pond','Build pond',[35,20,8],'bakery','+18 seeds / min'],['library','Open bookshop',[60,35,20],'pond','+12 warmth / min']]){
     $(id).disabled=state[id]||!state[requirement]||state.wood<cost[0]||state.seeds<cost[1]||state.warmth<cost[2];
-    $(id).innerHTML=state[id]?`${id==='pond'?'Fern’s pond':'Orla’s bookshop'} <span>${income}</span>`:`${label} <span>${state[requirement]?`${cost[0]} wood · ${cost[1]} seeds · ${cost[2]} ♡`:`First: ${requirement==='bakery'?'bakery':'pond'}`}</span>`;
+    $(id).innerHTML=state[id]?`${id==='pond'?'Fern’s pond':'Orla’s bookshop'} <span>${incomeLabel(buildingRates(id))}</span>`:`${label} <span>${state[requirement]?`${cost[0]} wood · ${cost[1]} seeds · ${cost[2]} ♡`:`First: ${requirement==='bakery'?'bakery':'pond'}`}</span>`;
   }
   $('lantern').disabled=!state.bakery||state.lanterns>=4||state.wood<10||state.warmth<5;
   $('lantern').innerHTML=state.lanterns>=4?'Lantern trail lit <span>+6 warmth / min</span>':`Add lantern (${state.lanterns}/4) <span>${state.bakery?'10 wood · 5 ♡':'First: bakery'}</span>`;
@@ -53,7 +65,7 @@ function render(){
   for(const project of projects){
     const {id,label,resident,cost,requires,income}=project;
     $(id).disabled=state[id]||!state[requires]||!canAfford(cost);
-    $(id).innerHTML=state[id]?`${resident} <span>${income}</span>`:`${label} <span>${state[requires]?costLabel(cost):'First: '+({library:'bookshop',orchard:'orchard',workshop:'workshop'}[requires])}</span>`;
+    $(id).innerHTML=state[id]?`${resident} <span>${incomeLabel(buildingRates(id))}</span>`:`${label} <span>${state[requires]?costLabel(cost):'First: '+({library:'bookshop',orchard:'orchard',workshop:'workshop'}[requires])}</span>`;
   }
   const toolCost=[25+state.tools*20,0,8+state.tools*8];
   $('tools').disabled=!state.workshop||state.tools>=5||!canAfford(toolCost);
@@ -62,6 +74,9 @@ function render(){
   $('trade').innerHTML=`Trade seeds <span>${state.orchard?'30 seeds → 15 wood':'First: orchard'}</span>`;
   const wait=Math.max(0,Math.ceil((state.festivalAt-Date.now())/1000));
   $('festival').disabled=!state.teahouse||!canAfford([20,40,0])||wait>0;
+  const rates=incomePerMinute();
+  for(const resource of ['wood','seeds','warmth'])$(`${resource}-income`).textContent=`+${Number(rates[resource].toFixed(2))}/min`;
+  for(const id of residentKeys){const level=state.upgrades[id],b=buildings[id];$(`upgrade-${id}`).disabled=!state[id]||level>=3||!canAfford(upgradeCost(id));$(`upgrade-${id}`).innerHTML=`${b.name} ${level}/3 <span>${!state[id]?'First: '+b.name.toLowerCase():level===3?incomeLabel(buildingRates(id)):'Next: '+incomeLabel(buildingRates(id,level+1))}</span>${state[id]&&level<3?`<span>${costLabel(upgradeCost(id))}</span>`:''}`;$(`upgrade-${id}`).title=state[id]&&level<3?`${b.details[level]} · Next: ${incomeLabel(buildingRates(id,level+1))}`:'';}
   renderFinale();
   $('festival').innerHTML=`Host tea picnic <span>${!state.teahouse?'First: tea garden':wait?`Ready in ${Math.floor(wait/60)}:${String(wait%60).padStart(2,'0')}`:'20 wood · 40 seeds → 40 ♡'}</span>`;
 
@@ -82,12 +97,13 @@ for(const project of projects)$(project.id).onclick=()=>{
 $('tools').onclick=()=>{accrue(Date.now());const cost=[25+state.tools*20,0,8+state.tools*8];if(!state.workshop||state.tools>=5||!canAfford(cost))return;spend(cost);state.tools++;render();save();toast('Alder made your gathering tools a little better.');};
 $('trade').onclick=()=>{accrue(Date.now());if(!state.orchard||state.seeds<30)return;state.seeds-=30;state.wood+=15;render();save();toast('Clover traded your seeds for 15 wood.');};
 $('festival').onclick=()=>{accrue(Date.now());if(!state.teahouse||state.festivalAt>Date.now()||!canAfford([20,40,0]))return;spend([20,40,0]);state.warmth+=40;state.festivalAt=Date.now()+300000;render();save();toast('Everyone came for tea. +40 warmth');};
+for(const id of residentKeys)$(`upgrade-${id}`).onclick=()=>{accrue(Date.now());if(!state[id]||state.upgrades[id]>=3)return;const cost=upgradeCost(id);if(!canAfford(cost))return;spend(cost);state.upgrades[id]++;render();save();toast(`${buildings[id].details[state.upgrades[id]-1]} added. ${incomeLabel(buildingRates(id))}`);};
 $('square').onclick=()=>{accrue(Date.now());const stage=squareStages[state.square];if(!stage||!residentKeys.every(k=>state[k])||!canAfford(stage.cost))return;spend(stage.cost);state.square++;render();save();toast(stage.message);};
 $('mosslight').onclick=()=>{accrue(Date.now());if(state.completed||!finaleReady()||!canAfford(finaleCost))return;spend(finaleCost);state.completed=true;render();save();toast('The Mosslight Festival has begun. Welcome home.');showEnding();};
 function showEnding(){if(!$('ending').open)$('ending').showModal();}
 $('memories').onclick=()=>{if(state.completed)showEnding();};
 $('keep-playing').onclick=()=>$('ending').close();
-const actionPages=[['village-tab','village-actions'],['expand-tab','expansion-actions'],['square-tab','square-actions']];
+const actionPages=[['village-tab','village-actions'],['expand-tab','expansion-actions'],['square-tab','square-actions'],['upgrade-tab','upgrade-actions']];
 for(const [id,panel] of actionPages)$(id).onclick=()=>{
   for(const [button,page] of actionPages){$(page).hidden=page!==panel;$(button).setAttribute('aria-pressed',String(button===id));}
 };
@@ -97,7 +113,7 @@ let pixelScale=1,pixelX=0,pixelY=0;
 const rect=(x,y,w,h,c)=>{ctx.fillStyle=c;const left=Math.round(x*pixelScale+pixelX),top=Math.round(y*pixelScale+pixelY);ctx.fillRect(left,top,Math.max(1,Math.round((x+w)*pixelScale+pixelX)-left),Math.max(1,Math.round((y+h)*pixelScale+pixelY)-top));};
 function tree(x,y,s=1){rect(x-2*s,y,4*s,23*s,'#66513d');for(let i=0;i<4;i++){rect(x-(9+i*3)*s,y-(32-i*9)*s,(18+i*6)*s,12*s,i%2?'#365a42':'#294d3c');}rect(x-9*s,y-28*s,7*s,5*s,'#53704b');}
 function house(x,y,bakery){rect(x+5,y+16,69,43,bakery?'#ba9b6a':'#a38b63');rect(x,y+57,81,5,'#5d5842');for(let i=0;i<8;i++)rect(x+35-i*5,y+i*3,12+i*10,4,bakery?'#91634f':'#6e7660');rect(x+53,y-2,7,16,'#7a7260');rect(x+34,y+35,15,24,'#594d3e');rect(x+38,y+40,6,10,'#d8b768');for(const wx of [x+13,x+57]){rect(wx,y+32,12,13,'#65523e');rect(wx+2,y+34,8,9,bakery?'#ffd88a':'#dfc47f');rect(wx+5,y+34,2,9,'#7e6c4e');}rect(x+29,y+60,25,4,'#b4a077');}
-function drawVillage(t){rect(0,0,480,250,'#283d39');rect(0,70,480,180,'#52694a');for(let i=0;i<25;i++)tree(i*21,48+(i%4)*8,1.3);for(let i=0;i<25;i++)tree(i*22-8,67+(i%3)*7,1.1);for(let i=0;i<30;i++)tree(i*19-5,90+(i%4)*6,.9);rect(0,110,480,140,'#627c51');for(let i=0;i<150;i++){const x=(i*73)%480,y=115+(i*47)%135;rect(x,y,2,2,i%3?'#708a59':'#536d46');}for(let i=0;i<25;i++){rect(207-i,125+i*5,40+i*2,6,'#ae9f72');}rect(120,165,210,15,'#ae9f72');rect(68,172,94,9,'#ae9f72');house(125,92,false);if(state.bakery){house(286,102,true);rect(304,125,37,8,'#e0c78b');rect(309,128,3,2,'#816047');rect(317,128,20,2,'#816047');if(!state.completed){const f= Math.sin(t/1500)*5;rect(272+f,168,9,10,'#c48048');rect(269+f,163,12,9,'#dd9c56');rect(269+f,160,3,5,'#a75f35');rect(278+f,160,3,5,'#a75f35');rect(272+f,168,7,4,'#efe0b4');rect(270+f,166,2,2,'#303b30');rect(279+f,166,2,2,'#303b30');rect(280+f,174,8,4,'#bd753d');rect(286+f,174,3,4,'#ede1ba');}for(let i=0;i<3;i++)rect(341+Math.sin(t/1800+i)*3,93-i*9-(t/300%9),7,5,'#a6b09a');}else{rect(291,128,63,36,'#686d54');for(let i=0;i<7;i++)rect(286+i*6,113+i%3*4,15,5,'#777560');rect(315,142,12,22,'#424e3d');rect(289,158,69,5,'#82905c');}rect(78,184,76,37,'#65563e');for(let i=0;i<5;i++){rect(81+i*14,187,10,30,'#827353');if(i<state.garden)for(let j=0;j<4;j++){const x=85+i*14,y=192+j*7;rect(x,y,2,6,'#577347');rect(x-2,y,6,3,['#e3b285','#e2d69c','#b7a4c0'][j%3]);}}for(const p of [[31,151,1.2],[53,130,1],[422,155,1.2],[451,183,1.4],[390,209,.8],[25,225,1]])tree(...p);rect(209,119,3,23,'#655842');rect(205,119,11,10,'#d7ac5e');rect(208,121,5,6,'#ffe8a0');for(let i=0;i<15;i++){const x=(i*37+Math.sin(t/1900+i)*8+40)%480,y=100+(i*23)%128+Math.cos(t/1700+i)*6;rect(x,y,2,2,Math.sin(t/800+i)>.3?'#e4d78b':'#829562');}drawAdditions(t);drawExpansion(t,false);drawSquare(t,false);}
+function drawVillage(t){rect(0,0,480,250,'#283d39');rect(0,70,480,180,'#52694a');for(let i=0;i<25;i++)tree(i*21,48+(i%4)*8,1.3);for(let i=0;i<25;i++)tree(i*22-8,67+(i%3)*7,1.1);for(let i=0;i<30;i++)tree(i*19-5,90+(i%4)*6,.9);rect(0,110,480,140,'#627c51');for(let i=0;i<150;i++){const x=(i*73)%480,y=115+(i*47)%135;rect(x,y,2,2,i%3?'#708a59':'#536d46');}for(let i=0;i<25;i++){rect(207-i,125+i*5,40+i*2,6,'#ae9f72');}rect(120,165,210,15,'#ae9f72');rect(68,172,94,9,'#ae9f72');house(125,92,false);if(state.bakery){house(286,102,true);rect(304,125,37,8,'#e0c78b');rect(309,128,3,2,'#816047');rect(317,128,20,2,'#816047');if(!state.completed){const f= Math.sin(t/1500)*5;rect(272+f,168,9,10,'#c48048');rect(269+f,163,12,9,'#dd9c56');rect(269+f,160,3,5,'#a75f35');rect(278+f,160,3,5,'#a75f35');rect(272+f,168,7,4,'#efe0b4');rect(270+f,166,2,2,'#303b30');rect(279+f,166,2,2,'#303b30');rect(280+f,174,8,4,'#bd753d');rect(286+f,174,3,4,'#ede1ba');}for(let i=0;i<3;i++)rect(341+Math.sin(t/1800+i)*3,93-i*9-(t/300%9),7,5,'#a6b09a');}else{rect(291,128,63,36,'#686d54');for(let i=0;i<7;i++)rect(286+i*6,113+i%3*4,15,5,'#777560');rect(315,142,12,22,'#424e3d');rect(289,158,69,5,'#82905c');}rect(78,184,76,37,'#65563e');for(let i=0;i<5;i++){rect(81+i*14,187,10,30,'#827353');if(i<state.garden)for(let j=0;j<4;j++){const x=85+i*14,y=192+j*7;rect(x,y,2,6,'#577347');rect(x-2,y,6,3,['#e3b285','#e2d69c','#b7a4c0'][j%3]);}}for(const p of [[31,151,1.2],[53,130,1],[422,155,1.2],[451,183,1.4],[390,209,.8],[25,225,1]])tree(...p);rect(209,119,3,23,'#655842');rect(205,119,11,10,'#d7ac5e');rect(208,121,5,6,'#ffe8a0');for(let i=0;i<15;i++){const x=(i*37+Math.sin(t/1900+i)*8+40)%480,y=100+(i*23)%128+Math.cos(t/1700+i)*6;rect(x,y,2,2,Math.sin(t/800+i)>.3?'#e4d78b':'#829562');}drawAdditions(t);drawExpansion(t,false);drawSquare(t,false);drawUpgrades(false);}
 function drawAdditions(t){
   if(state.pond){
     rect(361,172,61,36,'#8c9564');rect(354,179,75,22,'#8c9564');rect(362,177,59,26,'#547f83');rect(357,184,69,13,'#547f83');
@@ -173,6 +189,17 @@ function drawSquare(t,portrait){
     for(let i=0;i<6;i++){const lx=x+(i*13)%w,ly=y-20-((t/500+i*7)%35);rect(lx,ly,3,4,'#c8995b');rect(lx+1,ly+1,1,2,'#ffe8a0');}
   }
 }
+function drawUpgrades(portrait){
+  const positions=portrait?{bakery:[110,100],pond:[127,250],library:[14,176],orchard:[27,339],workshop:[130,321],teahouse:[117,376]}:{bakery:[286,102],pond:[361,172],library:[22,92],orchard:[389,91],workshop:[83,30],teahouse:[221,28]};
+  for(const id of residentKeys){const level=state.upgrades[id];if(!state[id]||!level)continue;const [x,y]=positions[id];
+    if(id==='bakery'){rect(x+7,y+59,23,7,'#a77d4b');rect(x+5,y+57,27,3,'#d2b788');for(let i=0;i<level+1;i++)rect(x+9+i*5,y+54,4,3,'#e2ba79');if(level>=2){rect(x+9,y+44,18,3,'#c48a76');rect(x+9,y+47,18,3,'#ddc29b');}if(level===3)rect(x+18,y+28,35,3,'#dbb477');}
+    if(id==='pond'){for(let i=0;i<level+1;i++){rect(x+9+i*8,y+7,5,3,'#91a260');rect(x+10+i*8,y+6,3,2,'#d7b8aa');}if(level>=2){rect(x+1,y+30,24,3,'#ad8d64');rect(x+4,y+33,2,4,'#735d43');rect(x+20,y+33,2,4,'#735d43');}}
+    if(id==='library'){rect(x+8,y+61,22,3,'#ad8d64');rect(x+10,y+64,2,4,'#735d43');rect(x+26,y+64,2,4,'#735d43');if(level>=2){rect(x+59,y+51,12,11,'#735d43');for(let i=0;i<5;i++)rect(x+60+i*2,y+53,1,7,['#adbbbc','#e2ba79','#c48a76'][i%3]);}if(level===3){rect(x+8,y+52,6,6,'#708651');rect(x+9,y+50,4,3,'#d7b8aa');}}
+    if(id==='orchard'){for(let i=0;i<level;i++){rect(x-8+i*10,y+26,8,6,'#a78354');rect(x-6+i*10,y+24,4,3,'#dca073');}if(level===3)for(let i=0;i<4;i++)rect(x-13+i*7,y-14+i%2*5,3,2,'#d7b8aa');}
+    if(id==='workshop'){for(let i=0;i<level;i++){rect(x-6,y+34-i*4,14,3,'#ba9260');rect(x-6,y+34-i*4,2,3,'#d5b888');}if(level>=2){rect(x+37,y+31,15,3,'#ad8d64');rect(x+39,y+34,2,7,'#735d43');rect(x+48,y+34,2,7,'#735d43');}if(level===3)rect(x+2,y+12,47,2,'#c4b68c');}
+    if(id==='teahouse'){for(let i=0;i<level;i++){rect(x+5+i*18,y+39,5,5,'#ad8d64');rect(x+5+i*18,y+37,5,3,'#708651');rect(x+6+i*18,y+36,3,2,'#d7b8aa');}if(level===3)for(let i=0;i<5;i++){rect(x+7+i*9,y+16,3,4,'#a77d4b');rect(x+8+i*9,y+17,1,2,'#ffe8a0');}}
+  }
+}
 function drawPortrait(t){
   rect(0,0,200,420,'#627c51');
   for(let i=0;i<100;i++)rect((i*73)%200,(i*47)%320,2,2,i%2?'#708a59':'#536d46');
@@ -185,7 +212,7 @@ function drawPortrait(t){
   if(state.pond){rect(127,250,59,34,'#8c9564');rect(121,257,70,20,'#547f83');rect(128,253,58,28,'#547f83');for(let i=0;i<4;i++)rect(130+i*12,260+i%2*9,8,1,'#95b9a4');rect(172,259,8,4,'#91a260');if(!state.completed){rect(174,242,10,8,'#91ac62');rect(174,240,3,3,'#bad38a');rect(181,240,3,3,'#bad38a');rect(175,241,1,1,'#263d35');rect(182,241,1,1,'#263d35');}}
   for(const p of [[10,120,.7],[185,60,.8],[12,165,.6],[186,206,.7],[115,304,.6]])tree(...p);
   for(let i=0;i<=state.lanterns;i++){rect(105,88+i*43,2,13,'#66513d');rect(102,84+i*43,8,7,'#a77d4b');rect(104,86+i*43,4,3,'#ffe4a0');}
-  drawExpansion(t,true);drawSquare(t,true);
+  drawExpansion(t,true);drawSquare(t,true);drawUpgrades(true);
   for(let i=0;i<12;i++)rect(15+(i*37)%180+Math.sin(t/1900+i)*3,48+(i*23)%245,1,1,Math.sin(t/800+i)>.3?'#e4d78b':'#829562');
 }
 function draw(t){
@@ -194,7 +221,7 @@ function draw(t){
   if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;ctx.imageSmoothingEnabled=false;}
   pixelScale=1;pixelX=0;pixelY=0;rect(0,0,w,h,'#52694a');
   // Recompose for portrait screens instead of cropping the village away.
-  const top=window.innerWidth<=700?42:26,bottom=window.innerWidth<=700?75:61;
+  const top=window.innerWidth<=700?42:26,bottom=window.innerWidth<=700?84:71;
   const portrait=window.innerWidth<650&&window.innerHeight>window.innerWidth;
   const sceneW=portrait?200:480,sceneH=portrait?420:250;
   const scale=Math.min(w/sceneW,Math.max(1,h-top-bottom)/sceneH);

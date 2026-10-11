@@ -9,15 +9,15 @@
   <header>
     <div class="title"><h1>Mosslight Village</h1><span id="neighbors">0 / 6 neighbors</span></div>
     <section class="resources" aria-label="Your supplies">
-      <div>🪵 <strong id="wood">0</strong><span>wood</span></div>
-      <div>🌱 <strong id="seeds">0</strong><span>seeds</span></div>
-      <div>♡ <strong id="warmth">0</strong><span>warmth</span></div>
+      <div>🪵 <strong id="wood">0</strong><span>wood<small id="wood-income">+0/min</small></span></div>
+      <div>🌱 <strong id="seeds">0</strong><span>seeds<small id="seeds-income">+0/min</small></span></div>
+      <div>♡ <strong id="warmth">0</strong><span>warmth<small id="warmth-income">+0/min</small></span></div>
     </section>
     <button id="sound" aria-pressed="false">♫ Sound off</button>
   </header>
   <div id="toast" role="status"></div>
   <div class="action-dock">
-  <nav class="tabs" aria-label="Action pages"><button id="village-tab" aria-controls="village-actions" aria-pressed="true">Village</button><button id="expand-tab" aria-controls="expansion-actions" aria-pressed="false">Woodland</button><button id="square-tab" aria-controls="square-actions" aria-pressed="false">Festival</button></nav>
+  <nav class="tabs" aria-label="Action pages"><button id="village-tab" aria-controls="village-actions" aria-pressed="true">Village</button><button id="expand-tab" aria-controls="expansion-actions" aria-pressed="false">Woodland</button><button id="upgrade-tab" aria-controls="upgrade-actions" aria-pressed="false">Upgrades</button><button id="square-tab" aria-controls="square-actions" aria-pressed="false">Festival</button></nav>
   <section id="village-actions" class="actions" aria-label="Village actions">
     <button id="gather">Gather wood <span>+3 wood</span></button>
     <button id="plant">Plant wildflowers <span>6 wood</span></button>
@@ -33,6 +33,14 @@
     <button id="tools">Improve tools <span>First: workshop</span></button>
     <button id="trade">Trade seeds <span>First: orchard</span></button>
     <button id="festival">Host tea picnic <span>First: tea garden</span></button>
+  </section>
+  <section id="upgrade-actions" class="actions" aria-label="Building upgrades" hidden>
+    <button id="upgrade-bakery">Bakery 0/3 <span>First: bakery</span></button>
+    <button id="upgrade-pond">Pond 0/3 <span>First: pond</span></button>
+    <button id="upgrade-library">Bookshop 0/3 <span>First: bookshop</span></button>
+    <button id="upgrade-orchard">Orchard 0/3 <span>First: orchard</span></button>
+    <button id="upgrade-workshop">Workshop 0/3 <span>First: workshop</span></button>
+    <button id="upgrade-teahouse">Tea garden 0/3 <span>First: tea garden</span></button>
   </section>
   <section id="square-actions" class="actions finale-actions" aria-label="Mosslight Festival" hidden>
     <div class="festival-progress"><span id="goal">Welcome all 6 neighbors</span><div id="milestones"></div></div>
