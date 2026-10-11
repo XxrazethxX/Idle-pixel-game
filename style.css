@@ -32,3 +32,14 @@ button:disabled{color:#b2baa6;background:#26392ee8;cursor:default}
 .tabs button{font-size:12px;padding:8px 22px;border-radius:20px}
 .tabs button[aria-pressed="true"]{background:#60734b;color:#fff0cb;border-color:#a6b47d}
 @media(max-width:700px){.action-dock{width:calc(100% - 24px);bottom:max(10px,env(safe-area-inset-bottom))}.tabs button{font-size:11px;padding:7px 18px}}
+
+.festival-progress{grid-column:1/-1;background:#18271fed;border:1px solid #617052;border-radius:7px;padding:12px;text-align:center;font-size:13px}
+#milestones{display:flex;justify-content:center;flex-wrap:wrap;gap:8px 18px;margin-top:9px;font-size:11px;color:var(--muted)}
+#milestones .done{color:#e5bc75}
+dialog{width:min(440px,calc(100% - 32px));max-height:calc(100dvh - 32px);overflow:auto;border:1px solid #a6b47d;border-radius:12px;background:#233b2e;color:var(--cream);text-align:center;padding:30px;box-shadow:0 12px 80px #101c15}
+dialog::backdrop{background:#10251dc9}
+.ending-star{font-size:38px;color:var(--gold)}
+dialog h2{font:normal 30px Georgia,serif;margin:16px 0}
+dialog p{font-size:14px;line-height:1.8;color:var(--muted)}
+dialog .ending-note{font-size:12px}dialog button{margin-top:12px;width:100%;background:#60734b}
+@media(max-width:700px){.festival-progress{font-size:12px;padding:10px}#milestones{font-size:10px;gap:6px 10px}.finale-actions button{min-height:65px}}

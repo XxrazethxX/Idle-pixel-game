@@ -17,7 +17,7 @@
   </header>
   <div id="toast" role="status"></div>
   <div class="action-dock">
-  <nav class="tabs" aria-label="Action pages"><button id="village-tab" aria-controls="village-actions" aria-pressed="true">Village</button><button id="expand-tab" aria-controls="expansion-actions" aria-pressed="false">Woodland</button></nav>
+  <nav class="tabs" aria-label="Action pages"><button id="village-tab" aria-controls="village-actions" aria-pressed="true">Village</button><button id="expand-tab" aria-controls="expansion-actions" aria-pressed="false">Woodland</button><button id="square-tab" aria-controls="square-actions" aria-pressed="false">Festival</button></nav>
   <section id="village-actions" class="actions" aria-label="Village actions">
     <button id="gather">Gather wood <span>+3 wood</span></button>
     <button id="plant">Plant wildflowers <span>6 wood</span></button>
@@ -34,7 +34,20 @@
     <button id="trade">Trade seeds <span>First: orchard</span></button>
     <button id="festival">Host tea picnic <span>First: tea garden</span></button>
   </section>
+  <section id="square-actions" class="actions finale-actions" aria-label="Mosslight Festival" hidden>
+    <div class="festival-progress"><span id="goal">Welcome all 6 neighbors</span><div id="milestones"></div></div>
+    <button id="square">Lay square stones <span>First: all 6 neighbors</span></button>
+    <button id="mosslight">Host Mosslight Festival <span>Finish the milestones above</span></button>
+    <button id="memories">Festival memories <span>First: Mosslight Festival</span></button>
+  </section>
   </div>
+  <dialog id="ending" aria-labelledby="ending-title" aria-describedby="ending-story">
+    <span class="ending-star" aria-hidden="true">✦</span>
+    <h2 id="ending-title">Welcome home.</h2>
+    <p id="ending-story">Six neighbors. One lantern. A village full of light.<br>You kept the promise, and nobody has to wander alone.</p>
+    <p class="ending-note">The Mosslight Festival is complete. Your village is yours to keep.</p>
+    <button id="keep-playing" autofocus>Keep tending the village</button>
+  </dialog>
 </main>
 <script src="game.js"></script>
 </body>

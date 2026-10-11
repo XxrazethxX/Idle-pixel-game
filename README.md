@@ -17,3 +17,7 @@ The canvas fills the screen and uses a separate portrait composition so building
 ## Checks
 
 Run `node --check game.js` and `node --test tests/progression.test.cjs`.
+
+## The Mosslight Festival
+
+The Festival action page tracks the final goal. Welcome all six neighbors, finish five flower patches and four lanterns, then restore the square in three stages: stones, flowers, and the Mosslight lantern. Hosting the festival costs 100 wood, 150 seeds, and 500 warmth. Everyone gathers in the decorated square, floating lanterns rise, and an ending celebrates your village. Continue playing afterward, or reread the ending through Festival memories. Completion and square progress are saved automatically.
