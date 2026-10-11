@@ -146,7 +146,7 @@ function drawAdditions(t){
   }
   if(state.library){
     house(22,92,false);rect(26,123,67,5,'#849d92');rect(27,128,65,5,'#698478');rect(35,125,8,2,'#e2d5a4');rect(48,125,32,2,'#e2d5a4');
-    
+
   }
   for(let i=0;i<state.lanterns;i++){const x=180+i*24,y=184+i%2*17;rect(x,y,2,16,'#66513d');rect(x-3,y-5,8,8,'#a77d4b');rect(x-1,y-3,4,4,'#ffe4a0');rect(x-4,y+16,10,2,'#52694a');}
   // A small picnic spot makes warmth feel like life, rather than just a counter.
