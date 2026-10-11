@@ -16,3 +16,5 @@ test('old saves retain completed festivals and invalid upgrade levels are clampe
 
 test('three documented pacing models finish within two to three simulated hours',()=>{const {simulate,scenarios}=require('../scripts/measure-pacing.cjs');for(const scenario of scenarios){const result=simulate(scenario);assert.ok(result.minutes>=120&&result.minutes<=180,`${scenario.name}: ${result.minutes} minutes`);}});
 test('large supply counts stay compact without changing the saved amounts',()=>{const g=game({wood:13790,seeds:18561,warmth:16805,last:1000000});assert.equal(g.elements.wood.textContent,'13.8k');assert.equal(g.elements.wood.title,'13790 wood');assert.equal(g.stored().wood,13790);});
+
+test('calm visuals leave saves and production unchanged',()=>{const g=game({wood:0,seeds:0,warmth:0,bakery:true,last:1000000});g.elements.motion.onclick();assert.equal(g.run('calmMotion'),true);g.advance(60);assert.equal(g.stored().wood,7.5);assert.equal(g.stored().warmth,6);g.elements.motion.onclick();assert.equal(g.run('calmMotion'),false);assert.equal(g.stored().bakery,true);});

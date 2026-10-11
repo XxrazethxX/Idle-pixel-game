@@ -16,7 +16,7 @@ The canvas fills the screen and uses a separate portrait composition so building
 
 ## Checks
 
-Run `node --check game.js` and `node --test tests/progression.test.cjs`.
+Run `node --check game.js`, `node --check world.js`, and `node --test tests/*.test.cjs`.
 
 ## The Mosslight Festival
 
@@ -27,3 +27,9 @@ The Festival action page tracks the final goal. Welcome all six neighbors, finis
 The Upgrades page gives every resident building three improvements. Each level adds 50% of the building’s base production (up to 2.5× at level three), with escalating costs and new pixel decorations. Buttons show the next income and exact cost; the supply bar shows total income per minute. Offline income uses the same upgraded rates. Older saves start with level-zero buildings; festivals already completed remain completed.
 
 Run `node scripts/measure-pacing.cjs` to measure three reproducible progression models. Current results range from 146 to 175 simulated minutes. These models use real purchase handlers, earned resources, and accelerated elapsed time; they do not establish real player completion time. See [PACING.md](PACING.md) for assumptions.
+
+## A living village
+
+Residents stroll along short paths and pause to rest. Dawn, day, dusk, and night repeat every sixteen minutes; gentle rain appears in selected four-minute weather windows and fades in and out. Windows and lanterns stay warm at night. Weather and time of day never change production or damage the village.
+
+Sound is optional and starts only after clicking its button: soft chimes, filtered wind, and rain ambience generated in the browser without downloaded assets. Audio pauses while the tab is hidden. Motion off freezes the scene in clear daylight and is remembered separately from game progress; reduced-motion browser preferences default to this calm setting.
