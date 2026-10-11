@@ -7,7 +7,7 @@
     <canvas id="village" width="480" height="250" aria-label="A pixel woodland village with your cabin, garden, grove and bakery"></canvas>
   </section>
   <header>
-    <div class="title"><h1>Mosslight Village</h1><span id="neighbors">0 / 3 neighbors</span></div>
+    <div class="title"><h1>Mosslight Village</h1><span id="neighbors">0 / 6 neighbors</span></div>
     <section class="resources" aria-label="Your supplies">
       <div>🪵 <strong id="wood">0</strong><span>wood</span></div>
       <div>🌱 <strong id="seeds">0</strong><span>seeds</span></div>
@@ -16,7 +16,9 @@
     <button id="sound" aria-pressed="false">♫ Sound off</button>
   </header>
   <div id="toast" role="status"></div>
-  <section class="actions" aria-label="Village actions">
+  <div class="action-dock">
+  <nav class="tabs" aria-label="Action pages"><button id="village-tab" aria-controls="village-actions" aria-pressed="true">Village</button><button id="expand-tab" aria-controls="expansion-actions" aria-pressed="false">Woodland</button></nav>
+  <section id="village-actions" class="actions" aria-label="Village actions">
     <button id="gather">Gather wood <span>+3 wood</span></button>
     <button id="plant">Plant wildflowers <span>6 wood</span></button>
     <button id="restore">Restore bakery <span>24 wood · 12 seeds</span></button>
@@ -24,6 +26,15 @@
     <button id="library">Open bookshop <span>First: pond</span></button>
     <button id="lantern">Add lantern <span>First: bakery</span></button>
   </section>
+  <section id="expansion-actions" class="actions" aria-label="Woodland actions" hidden>
+    <button id="orchard">Plant orchard <span>First: bookshop</span></button>
+    <button id="workshop">Build workshop <span>First: orchard</span></button>
+    <button id="teahouse">Open tea garden <span>First: workshop</span></button>
+    <button id="tools">Improve tools <span>First: workshop</span></button>
+    <button id="trade">Trade seeds <span>First: orchard</span></button>
+    <button id="festival">Host tea picnic <span>First: tea garden</span></button>
+  </section>
+  </div>
 </main>
 <script src="game.js"></script>
 </body>

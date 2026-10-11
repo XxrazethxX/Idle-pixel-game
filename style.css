@@ -24,3 +24,11 @@ button:disabled{color:#b2baa6;background:#26392ee8;cursor:default}
 @media(max-height:450px){header{top:8px}h1{font-size:16px}.resources{padding:7px 12px}.actions{bottom:8px}.actions button{min-height:50px;padding:8px}#toast{top:65px}}
 
 .title{display:flex;flex-direction:column;gap:5px}#neighbors{font-size:11px;color:var(--muted);text-shadow:0 1px 3px #18271f}.actions button{padding:10px;min-height:58px}.actions{bottom:max(14px,env(safe-area-inset-bottom))}@media(max-width:700px){.actions button{font-size:11px;min-height:59px;padding:8px 4px}.actions button span{font-size:9px}.resources{gap:16px}.actions{bottom:max(10px,env(safe-area-inset-bottom))}}
+
+.action-dock{position:absolute;bottom:max(14px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(850px,calc(100% - 40px))}
+.action-dock .actions{position:static;transform:none;width:100%}
+[hidden]{display:none!important}
+.tabs{display:flex;justify-content:center;gap:6px;margin-bottom:7px}
+.tabs button{font-size:12px;padding:8px 22px;border-radius:20px}
+.tabs button[aria-pressed="true"]{background:#60734b;color:#fff0cb;border-color:#a6b47d}
+@media(max-width:700px){.action-dock{width:calc(100% - 24px);bottom:max(10px,env(safe-area-inset-bottom))}.tabs button{font-size:11px;padding:7px 18px}}
