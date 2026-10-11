@@ -13,7 +13,7 @@
       <div>🌱 <strong id="seeds">0</strong><span>seeds<small id="seeds-income">+0/min</small></span></div>
       <div>♡ <strong id="warmth">0</strong><span>warmth<small id="warmth-income">+0/min</small></span></div>
     </section>
-    <div class="world-controls"><button id="motion" aria-pressed="true">Motion on</button><button id="sound" aria-pressed="false">♫ Sound off</button></div>
+    <div class="world-controls"><button id="motion" aria-pressed="true">Motion on</button><button id="sound" aria-pressed="false">♫ Sound off</button><button id="settings" aria-label="Save settings">Saves</button></div>
   </header>
   <div id="toast" role="status"></div>
   <div class="action-dock">
@@ -49,6 +49,31 @@
     <button id="memories">Festival memories <span>First: Mosslight Festival</span></button>
   </section>
   </div>
+  <dialog id="save-dialog" aria-labelledby="save-title">
+    <h2 id="save-title">Your village</h2>
+    <p id="save-summary"></p>
+    <p id="save-status" role="status">Progress saved on this device.</p>
+    <div class="save-buttons"><button id="export-save">Export backup</button><button id="import-save">Import backup</button></div>
+    <input id="import-file" type="file" accept="application/json,.json" hidden>
+    <p id="transfer-status" role="status" aria-live="polite"></p>
+    <button id="reset-save" class="danger">Reset village</button>
+    <button id="close-settings" autofocus>Back to village</button>
+  </dialog>
+  <dialog id="import-dialog" aria-labelledby="import-title">
+    <h2 id="import-title">Restore this village?</h2>
+    <p id="import-summary"></p>
+    <p>This replaces your current progress. Export a backup first if you want to keep it.</p>
+    <p id="import-error" role="status"></p>
+    <button id="cancel-import" autofocus>Keep current village</button>
+    <button id="confirm-import">Restore backup</button>
+  </dialog>
+  <dialog id="reset-dialog" aria-labelledby="reset-title">
+    <h2 id="reset-title">Start a fresh village?</h2>
+    <p>Your buildings, supplies, and festival progress will be cleared. Export a backup first to keep them.</p>
+    <p id="reset-error" role="status"></p>
+    <button id="cancel-reset" autofocus>Keep my village</button>
+    <button id="confirm-reset" class="danger">Reset my village</button>
+  </dialog>
   <dialog id="ending" aria-labelledby="ending-title" aria-describedby="ending-story">
     <span class="ending-star" aria-hidden="true">✦</span>
     <h2 id="ending-title">Welcome home.</h2>
@@ -57,6 +82,7 @@
     <button id="keep-playing" autofocus>Keep tending the village</button>
   </dialog>
 </main>
+<script src="saves.js"></script>
 <script src="world.js"></script>
 <script src="game.js"></script>
 </body>

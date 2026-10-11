@@ -1,8 +1,8 @@
 'use strict';
 const KEY='mosslight-village-v1';
-const fresh=()=>({wood:0,seeds:0,warmth:0,garden:0,bakery:false,pond:false,library:false,lanterns:0,orchard:false,workshop:false,teahouse:false,tools:0,festivalAt:0,square:0,completed:false,upgrades:{bakery:0,pond:0,library:0,orchard:0,workshop:0,teahouse:0},last:Date.now()});
-let state=fresh();
-try{const saved=JSON.parse(localStorage.getItem(KEY));if(saved&&typeof saved==='object'){for(const k of ['wood','seeds','warmth','garden','last'])if(Number.isFinite(saved[k])&&saved[k]>=0)state[k]=saved[k];state.garden=Math.min(5,Math.floor(state.garden));for(const k of ['bakery','pond','library','orchard','workshop','teahouse'])state[k]=saved[k]===true;state.lanterns=Math.min(4,Math.max(0,Math.floor(Number(saved.lanterns)||0)));state.tools=Math.min(5,Math.max(0,Math.floor(Number(saved.tools)||0)));state.festivalAt=Number.isFinite(saved.festivalAt)&&saved.festivalAt>=0?saved.festivalAt:0;state.square=Math.min(3,Math.max(0,Math.floor(Number(saved.square)||0)));state.completed=saved.completed===true&&state.square===3;for(const id of Object.keys(state.upgrades)){const level=Number(saved.upgrades?.[id]);if(state[id]&&Number.isFinite(level))state.upgrades[id]=Math.min(3,Math.max(0,Math.floor(level)));}}}catch{}
+const fresh=()=>MosslightSaves.fresh(Date.now());
+let state=fresh(),protectUnreadableSave=false;
+try{const text=localStorage.getItem(KEY);if(text!==null){const raw=JSON.parse(text);if(!raw||typeof raw!=='object'||Array.isArray(raw)||!['wood','seeds','warmth','garden','last'].some(key=>Object.hasOwn(raw,key)))throw Error('Unreadable save');if(['wood','seeds','warmth','last'].some(key=>raw[key]!==undefined&&(!Number.isFinite(raw[key])||raw[key]<0)))throw Error('Unreadable save');state=MosslightSaves.normalize(raw,Date.now());}}catch{protectUnreadableSave=true;}
 let calmMotion=typeof window.matchMedia==='function'&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 try{const preferences=JSON.parse(localStorage.getItem('mosslight-preferences-v1'));if(typeof preferences?.calmMotion==='boolean')calmMotion=preferences.calmMotion;}catch{}
 const $=id=>document.getElementById(id);
@@ -18,9 +18,13 @@ function buildingRates(id,level=state.upgrades[id]){return Object.fromEntries(Ob
 function incomePerMinute(){const rates={wood:0,seeds:state.garden*12,warmth:state.lanterns*1.5};for(const id of Object.keys(buildings))if(state[id])for(const [resource,rate] of Object.entries(buildingRates(id)))rates[resource]+=rate;return rates;}
 function incomeLabel(rates){return Object.entries(rates).map(([resource,rate])=>`${Number(rate.toFixed(2))} ${resource==='warmth'?'♡':resource}/min`).join(' · ');}
 function upgradeCost(id){const level=state.upgrades[id],scale=buildings[id].costScale;return [Math.round([60,180,450][level]*scale),Math.round([15,45,100][level]*scale),Math.round([25,90,240][level]*scale)];}
-function accrue(now){const seconds=Math.max(0,Math.min((now-state.last)/1000,28800));const rates=incomePerMinute();for(const resource of ['wood','seeds','warmth'])state[resource]+=seconds*rates[resource]/60;state.last=now;}
+function accrue(now){const seconds=Math.max(0,Math.min((now-state.last)/1000,28800));const rates=incomePerMinute();for(const resource of ['wood','seeds','warmth'])state[resource]+=seconds*rates[resource]/60;state.last=Math.max(state.last,now);}
 const away=Date.now()-state.last;accrue(Date.now());
-function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch{toast('Saving unavailable. Keep this tab open to retain progress.');}}
+function save(){
+  if(protectUnreadableSave){$('settings').textContent='Saves !';$('save-status').textContent='Your previous save could not be read. It has been kept. Import a backup or reset to start again.';return false;}
+  try{localStorage.setItem(KEY,JSON.stringify(state));$('save-status').textContent='Progress saved on this device.';$('settings').textContent='Saves';return true;}
+  catch{$('settings').textContent='Saves !';$('save-status').textContent='Saving unavailable. Export a backup before closing this tab.';return false;}
+}
 const projects=[
   {id:'orchard',label:'Plant orchard',resident:'Clover’s orchard',cost:[120,100,120],requires:'library',income:'+30 seeds / min'},
   {id:'workshop',label:'Build workshop',resident:'Alder’s workshop',cost:[220,160,220],requires:'orchard',income:'+24 wood / min'},
@@ -111,6 +115,33 @@ for(const [id,panel] of actionPages)$(id).onclick=()=>{
   for(const [button,page] of actionPages){$(page).hidden=page!==panel;$(button).setAttribute('aria-pressed',String(button===id));}
 };
 $('motion').onclick=()=>{calmMotion=!calmMotion;try{localStorage.setItem('mosslight-preferences-v1',JSON.stringify({calmMotion}));}catch{}render();};
+let pendingImport=null,importGeneration=0;
+function transferSummary(candidate){return `${residentKeys.filter(k=>candidate[k]).length}/6 neighbors · ${Object.values(candidate.upgrades).reduce((a,b)=>a+b,0)}/18 upgrades · ${candidate.completed?'Festival complete':`Square ${candidate.square}/3`}`;}
+$('settings').onclick=()=>{accrue(Date.now());render();save();$('save-summary').textContent=transferSummary(state);$('save-dialog').showModal();};
+$('close-settings').onclick=()=>{pendingImport=null;importGeneration++;$('save-dialog').close();};
+$('save-dialog').addEventListener('cancel',()=>{pendingImport=null;importGeneration++;});
+$('export-save').onclick=()=>{
+  try{accrue(Date.now());render();save();const text=MosslightSaves.encode(state,Date.now());const url=URL.createObjectURL(new Blob([text],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='mosslight-village-backup.json';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);$('transfer-status').textContent='Backup downloaded.';}
+  catch(error){$('transfer-status').textContent=error.message;}
+};
+$('import-save').onclick=()=>{$('import-file').value='';$('import-file').click();};
+$('import-file').onchange=async()=>{
+  const generation=++importGeneration;pendingImport=null;const file=$('import-file').files?.[0];if(!file)return;
+  try{if(file.size>MosslightSaves.maxBytes)throw Error('Choose a village backup smaller than 256 KB.');const candidate=MosslightSaves.decode(await file.text(),Date.now());if(generation!==importGeneration)return;pendingImport=candidate;$('import-error').textContent='';$('import-summary').textContent=transferSummary(candidate);$('import-dialog').showModal();}
+  catch(error){if(generation===importGeneration)$('transfer-status').textContent=error.message;}
+};
+function replaceVillage(candidate){
+  // Persist before changing live progress, so a storage failure leaves the current village intact.
+  const previous=state;state=candidate;accrue(Date.now());const updated=state;state=previous;
+  try{localStorage.setItem(KEY,JSON.stringify(updated));}catch{const message='Storage is unavailable. Your current village has been kept.';for(const id of ['transfer-status','import-error','reset-error'])$(id).textContent=message;return false;}
+  state=updated;protectUnreadableSave=false;render();save();$('save-summary').textContent=transferSummary(state);$('ending').close();return true;
+}
+$('confirm-import').onclick=()=>{if(!pendingImport)return;if(replaceVillage(pendingImport)){$('transfer-status').textContent='Backup restored. Offline earnings included, up to eight hours.';pendingImport=null;$('import-dialog').close();}};
+$('cancel-import').onclick=()=>{pendingImport=null;importGeneration++;$('import-dialog').close();};
+$('import-dialog').addEventListener('cancel',()=>{pendingImport=null;importGeneration++;});
+$('reset-save').onclick=()=>{pendingImport=null;importGeneration++;$('reset-error').textContent='';$('reset-dialog').showModal();};
+$('cancel-reset').onclick=()=>$('reset-dialog').close();
+$('confirm-reset').onclick=()=>{if(replaceVillage(fresh())){$('reset-dialog').close();$('transfer-status').textContent='A fresh village is ready. Sound and motion preferences were kept.';}};
 let audioCtx,soundTimer,ambient;
 function updateAmbience(environment){if(!ambient||!audioCtx)return;const now=audioCtx.currentTime;ambient.wind.gain.setTargetAtTime(environment.rain>.1?.014:.025,now,1);ambient.rain.gain.setTargetAtTime(environment.rain*.055,now,1);}
 function createAmbience(){
@@ -283,4 +314,4 @@ function draw(t){
   pixelScale=1;pixelX=0;pixelY=0;requestAnimationFrame(draw);
 }
 
-render();save();requestAnimationFrame(draw);setInterval(()=>{accrue(Date.now());render();save();},1000);document.addEventListener('visibilitychange',()=>{accrue(Date.now());render();save();if(audioCtx&&soundTimer){const operation=document.hidden?audioCtx.suspend():audioCtx.resume();operation.catch(()=>{});}});if(away>60000&&(state.garden||state.bakery))toast('Welcome back. Your village kept growing while you were away.');
+render();save();requestAnimationFrame(draw);setInterval(()=>{accrue(Date.now());render();save();},1000);document.addEventListener('visibilitychange',()=>{accrue(Date.now());render();save();if(audioCtx&&soundTimer){const operation=document.hidden?audioCtx.suspend():audioCtx.resume();operation.catch(()=>{});}});if(protectUnreadableSave)toast('Your previous save was kept. Open Saves to recover it.');if(away>60000&&(state.garden||state.bakery))toast('Welcome back. Your village kept growing while you were away.');

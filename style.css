@@ -55,3 +55,8 @@ dialog .ending-note{font-size:12px}dialog button{margin-top:12px;width:100%;back
 #atmosphere{font-size:10px;color:#d6c7a4;text-shadow:0 1px 3px #18271f}.world-controls{display:flex;gap:6px;align-items:center}.world-controls button{font-size:11px;padding:10px}#motion{color:var(--muted)}
 @media(max-width:700px){.world-controls{margin-left:auto}.world-controls button{padding:9px 7px;font-size:10px}h1{font-size:17px}.title{gap:3px}}
 @media(prefers-reduced-motion:reduce){button,#toast{transition:none}button:hover:not(:disabled){transform:none}}
+
+.save-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px}.save-buttons button{font-size:13px;padding:12px 8px}.danger{background:#634839;border-color:#9d7960}dialog .danger{background:#634839}#transfer-status{min-height:1.5em;font-size:12px}#save-summary{color:var(--gold);font-size:12px}#save-status{font-size:12px}
+@media(max-width:700px){.world-controls{gap:4px}.world-controls button{padding:8px 6px;font-size:9px}h1{font-size:16px}dialog{padding:22px}}
+@media(max-width:360px){h1{font-size:14px}.world-controls button{padding:8px 4px}.world-controls{gap:3px}}
+@media(max-height:450px){dialog{padding:12px}dialog h2{font-size:24px;margin:4px 0}dialog p{font-size:11px;line-height:1.5;margin:4px 0}dialog button{padding:8px;margin-top:4px;font-size:12px}.save-buttons button{padding:8px}#save-summary,#save-status,#transfer-status{font-size:11px}}

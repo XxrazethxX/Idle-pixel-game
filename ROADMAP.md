@@ -8,7 +8,7 @@ The endpoint is a complete, relaxing game with a satisfying finish. Keep the sco
 - [x] Three upgrades for each building, visual decorations, and pacing models reaching the festival in 146–175 simulated minutes. Confirm real player pacing during the final playthrough.
 - [x] World polish: wandering residents, day/night lighting, gentle rain, optional wind/rain ambience, and saved calm-motion preference. Final art review remains part of release validation.
 - [ ] Finish controls: clear costs, income, and requirements; comfortable desktop and phone layouts; minimal text.
-- [ ] Save export/import, confirmed reset, and thorough offline/save compatibility checks.
+- [x] Versioned save export/import, confirmation before replacement/reset, legacy saves, offline income, clock rollback, corrupt-data protection, and storage-failure recovery checks.
 - [ ] Final fresh-save playthrough, display and progression review, and deployment as a shareable website.
 
-Next milestone: save export/import and confirmed reset, followed by the final controls and release review. Passing automated checks does not replace the final real-time playthrough.
+Next milestone: final controls and layout review, followed by the fresh-save playthrough and website deployment. Passing automated checks does not replace the final real-time playthrough.

@@ -16,7 +16,7 @@ The canvas fills the screen and uses a separate portrait composition so building
 
 ## Checks
 
-Run `node --check game.js`, `node --check world.js`, and `node --test tests/*.test.cjs`.
+Run `node --check game.js`, `node --check world.js`, `node --check saves.js`, and `node --test tests/*.test.cjs`.
 
 ## The Mosslight Festival
 
@@ -33,3 +33,11 @@ Run `node scripts/measure-pacing.cjs` to measure three reproducible progression 
 Residents stroll along short paths and pause to rest. Dawn, day, dusk, and night repeat every sixteen minutes; gentle rain appears in selected four-minute weather windows and fades in and out. Windows and lanterns stay warm at night. Weather and time of day never change production or damage the village.
 
 Sound is optional and starts only after clicking its button: soft chimes, filtered wind, and rain ambience generated in the browser without downloaded assets. Audio pauses while the tab is hidden. Motion off freezes the scene in clear daylight and is remembered separately from game progress; reduced-motion browser preferences default to this calm setting.
+
+## Backups and reset
+
+Open **Saves** to export a JSON backup, import one, or reset your village. Imports show a progress summary and require confirmation before replacing the current game. Reset also requires confirmation; canceling either keeps your village. Motion preferences and current sound settings stay unchanged.
+
+Backups include supplies, buildings, upgrades, picnic cooldown, square progress, festival completion, and the last save time. Restoring includes up to eight hours of offline income, using the saved production rates. Older raw save files are supported; malformed, oversized, or unsupported-version backups are rejected. Export files are versioned and contain no account information.
+
+If local storage is unreadable, the original data is kept instead of automatically overwritten. If writing fails, imports and resets keep the current game intact; export a backup before closing the tab. A clock rollback pauses earnings until the clock catches up rather than counting the same time twice.
