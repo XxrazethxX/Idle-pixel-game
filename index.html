@@ -1,3 +1,27 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Mosslight Village</title><link rel="stylesheet" href="style.css"></head>
-<body><main><header><div><span class="eyebrow">A LITTLE PLACE TO BELONG</span><h1>Mosslight Village<span>✦</span></h1></div><button id="sound" aria-pressed="false">♫ Sound off</button></header><section class="intro"><p>You’ve inherited a cabin, a patch of wildflowers, and a promise.<br>Leave the lantern lit. Someone will find their way home.</p><span id="clock">EARLY EVENING</span></section><section class="resources" aria-label="Your supplies"><div>🪵 <strong id="wood">0</strong><span>wood</span></div><div>🌱 <strong id="seeds">0</strong><span>seeds</span></div><div>♡ <strong id="warmth">0</strong><span>warmth</span></div><p id="rate">A village grows one small kindness at a time.</p></section><section class="world"><canvas id="village" width="480" height="250" aria-label="A pixel woodland village with your cabin, garden, grove and bakery"></canvas><div class="world-label">THE LANTERN IS ALWAYS LIT</div><div id="toast" role="status"></div></section><section class="actions"><article><span class="number">01 / THE GROVE</span><h2>A little wood goes a long way.</h2><p>Gather fallen branches from the forest floor. The trees can keep their leaves.</p><button id="gather">Gather wood <span>+3 wood</span></button></article><article><span class="number">02 / WILDFLOWERS</span><h2>Let something lovely grow.</h2><p id="garden-description">Plant a garden that gathers seeds while you explore.</p><button id="plant">Plant wildflowers <span>6 wood</span></button></article><article><span class="number">03 / A NEW NEIGHBOR</span><h2>A bakery for Juniper.</h2><p id="bakery-description">A wandering fox dreams of warm bread and a place to call home.</p><button id="restore">Restore the bakery <span>24 wood · 12 seeds</span></button></article></section><footer><span id="story">“Leave the porch lantern lit.” — a note from your grandmother</span><span>Saved here, softly and automatically.</span></footer></main><script src="game.js"></script></body></html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Mosslight Village</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<main>
+  <section class="world" aria-label="Mosslight Village">
+    <canvas id="village" width="480" height="250" aria-label="A pixel woodland village with your cabin, garden, grove and bakery"></canvas>
+  </section>
+  <header>
+    <h1>Mosslight Village</h1>
+    <section class="resources" aria-label="Your supplies">
+      <div>🪵 <strong id="wood">0</strong><span>wood</span></div>
+      <div>🌱 <strong id="seeds">0</strong><span>seeds</span></div>
+      <div>♡ <strong id="warmth">0</strong><span>warmth</span></div>
+    </section>
+    <button id="sound" aria-pressed="false">♫ Sound off</button>
+  </header>
+  <div id="toast" role="status"></div>
+  <section class="actions" aria-label="Village actions">
+    <button id="gather">Gather wood <span>+3 wood</span></button>
+    <button id="plant">Plant wildflowers <span>6 wood</span></button>
+    <button id="restore">Restore bakery <span>24 wood · 12 seeds</span></button>
+  </section>
+</main>
+<script src="game.js"></script>
+</body>
+</html>
